@@ -51,8 +51,8 @@
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/soc-api.git
-cd soc-api
+git clone https://github.com/cbriggs02/CB-SOC-Project.git
+cd Application
 ```
 
 ### 2. Install dependencies
