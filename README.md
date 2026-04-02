@@ -67,10 +67,12 @@ Create a `.env` file in the root:
 
 ```env
 PORT=3000
-BASE_URL=http://localhost:3000
-DB_TYPE=sqlite
-DB_DATABASE=./database.sqlite
-JWT_SECRET=your_jwt_secret
+DB_HOST=(database_host)
+DB_USER=(database_user)
+DB_PASSWORD=(database_password)
+DB_DATABASE=(database_name)
+DB_ENCRYPT=true
+DB_TRUST_CERT=true
 ```
 
 > Adjust the database configuration depending on your DB type (PostgreSQL, MySQL, etc.).
