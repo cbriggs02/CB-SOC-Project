@@ -29,7 +29,7 @@ Each module has its own README.md with detailed setup and usage instructions.
 * **TypeScript 6**
 * **Express**
 * **TypeORM**
-* **SQLite/PostgreSQL/MySQL**
+* **SQL Server**
 * **bcrypt** for password hashing
 * **Swagger/OpenAPI** for API documentation
 * **AsyncLocalStorage** for request context
