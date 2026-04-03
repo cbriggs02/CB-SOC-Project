@@ -39,7 +39,7 @@
 * **TypeScript 6**
 * **Express**
 * **TypeORM**
-* **SQLite/PostgreSQL/MySQL** (via TypeORM, configurable)
+* **SQL Server** (via TypeORM, configurable)
 * **bcrypt** (for password hashing)
 * **class-validator & class-transformer** (DTO validation)
 * **Swagger** (API docs)
