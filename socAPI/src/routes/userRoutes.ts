@@ -6,9 +6,15 @@ import { UserController } from "../controllers/UserController";
  * All errors are handled by the global error handler.
  */
 class UserRoutes {
+    /**
+     * The Express router for user-related routes.
+     */
     public router: Router;
     private userController: UserController;
 
+    /**
+     * Initializes the router and user controller, and sets up the routes for user operations.
+     */
     constructor() {
         this.router = Router();
         this.userController = new UserController();
@@ -16,62 +22,9 @@ class UserRoutes {
     }
 
     private initializeRoutes () {
-        /**
-         * @openapi
-         * /users:
-         *   post:
-         *     summary: Create a new user
-         *     tags:
-         *       - Users
-         *     requestBody:
-         *       required: true
-         *       content:
-         *         application/json:
-         *           schema:
-         *             $ref: '#/components/schemas/CreateUserDTO'
-         *     responses:
-         *       201:
-         *         description: User created successfully
-         *       400:
-         *         description: Validation errors
-         */
         this.router.post("/", this.userController.createUser.bind(this.userController));
-
-        /**
-         * @openapi
-         * /users:
-         *   get:
-         *     summary: Get all users
-         *     tags:
-         *       - Users
-         *     responses:
-         *       200:
-         *         description: List of users
-         */
         this.router.get("/", this.userController.getUsers.bind(this.userController));
-
-        /**
-         * @openapi
-         * /users/{id}:
-         *   delete:
-         *     summary: Delete a user by ID
-         *     tags:
-         *       - Users
-         *     parameters:
-         *       - in: path
-         *         name: id
-         *         required: true
-         *         schema:
-         *           type: string
-         *         description: The ID of the user to delete
-         *     responses:
-         *       204:
-         *         description: User deleted successfully
-         *       404:
-         *         description: User not found
-         *       400:
-         *         description: Invalid ID
-         */
+        this.router.get("/:id", this.userController.getUser.bind(this.userController));
         this.router.delete("/:id", this.userController.deleteUser.bind(this.userController));
     }
 }

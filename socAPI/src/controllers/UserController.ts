@@ -9,6 +9,7 @@ import { plainToInstance } from "class-transformer";
  */
 export class UserController {
     private readonly userService = new UserService();
+
     /**
      * Creates a new user
      * @param req 
@@ -22,8 +23,9 @@ export class UserController {
             const messages = errors.flatMap(err => Object.values(err.constraints || {}));
             return res.status(400).json({ errors: messages });
         }
-        await this.userService.createUser(req.body);
-        res.status(201).json("User created successfully");
+
+        const user = await this.userService.createUser(dto);
+        res.status(201).json({ message: "User created successfully", id: user.id });
     }
 
     /**
@@ -32,8 +34,18 @@ export class UserController {
      * @param res 
      */
     public async getUsers (_req: Request, res: Response) {
-        const users = await this.userService.getAllUsers();
+        const users = await this.userService.getUsers();
         res.json(users);
+    }
+
+    /**
+     * Retrieves a user by ID
+     * @param req 
+     * @param res 
+     */
+    public async getUser (req: Request<{ id: string }>, res: Response) {
+        const user = await this.userService.getUser(req.params.id);
+        res.json(user);
     }
 
     /**
