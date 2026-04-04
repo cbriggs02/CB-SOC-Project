@@ -2,11 +2,13 @@ import express, { Application } from "express";
 import dotenv from "dotenv";
 import { AppDataSource } from "./data-source";
 import userRoutes from "./routes/userRoutes";
-import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { RequestContextMiddleware } from "./middleware/RequestContextMiddleware";
 import { RequestLoggerMiddleware } from "./middleware/RequestLoggerMiddleware";
 import { GlobalErrorHandler } from "./middleware/GlobalErrorHandler";
+import passwordRoutes from "./routes/passwordRoutes";
+import path from "path";
+import YAML from "yamljs";
 
 dotenv.config();
 
@@ -19,7 +21,6 @@ dotenv.config();
 export class Server {
     public app: Application;
     private port: number;
-    private baseUrl: string;
 
     /**
      * Initializes the Server by setting up the Express application, configuring the port and base URL,
@@ -28,7 +29,7 @@ export class Server {
     constructor() {
         this.app = express();
         this.port = parseInt(process.env.PORT || "3000", 10);
-        this.baseUrl = process.env.BASE_URL || `http://localhost:${this.port}`;
+
         this.initializeMiddlewares();
         this.initializeSwagger();
         this.initializeRoutes();
@@ -51,26 +52,14 @@ export class Server {
     }
 
     private initializeSwagger () {
-        const swaggerOptions = {
-            definition: {
-                openapi: "3.0.0",
-                info: {
-                    title: "SOC API",
-                    version: "1.0.0",
-                    description: "API documentation for the SOC project",
-                },
-                servers: [{ url: this.baseUrl }],
-            },
-            apis: ["./src/routes/*.ts", "./src/controllers/*.ts"],
-        };
-
-        const swaggerSpec = swaggerJsdoc(swaggerOptions);
-        this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+        const swaggerDocument = YAML.load(path.join(__dirname, "../swagger/swagger.yaml"));
+        this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     }
 
     private initializeRoutes () {
         this.app.get("/", (_req, res) => res.send("SOC API running"));
-        this.app.use("/users", userRoutes);
+        this.app.use("/api/users", userRoutes);
+        this.app.use("/api/users/", passwordRoutes);
     }
 
     private async initializeDatabase () {
