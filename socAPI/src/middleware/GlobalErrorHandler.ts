@@ -20,7 +20,7 @@ export class GlobalErrorHandler {
     public handle = async (err: any, req: Request, res: Response, next: NextFunction) => {
         const statusCode = err.statusCode || 500;
         const message = err.message || "Internal Server Error";
-        const logMessage = `[ERROR] ${req.method} ${req.originalUrl} - ${statusCode} - ${message}`;
+        const logMessage = `[ERROR] ${req.method} ${req.originalUrl} - ${statusCode} - ${message} - ${err.stack || "No stack"}`;
 
         this.securityLogger.createSecurityLog({
             ServiceName: ServiceNameEnum.API,
