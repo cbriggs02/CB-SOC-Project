@@ -24,7 +24,7 @@ export class GlobalErrorHandler {
 
         this.securityLogger.createSecurityLog({
             ServiceName: ServiceNameEnum.API,
-            LogLevel: LogLevelEnum.Error,
+            LogLevel: LogLevelEnum.ERROR,
             ActionType: ActionTypeEnum.SystemError,
             Message: logMessage
         }).catch(console.error);

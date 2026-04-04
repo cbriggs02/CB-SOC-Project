@@ -1,4 +1,4 @@
-import { AppDataSource } from "../../data-source";
+import { AppDataSource } from "../../config/data-source";
 import { User } from "../../models/User";
 import { IUserService } from "../../interfaces/UserManagement/IUserService";
 import { IGetUserResponse } from "../../interfaces/UserManagement/IGetUserResponse";
@@ -29,13 +29,13 @@ export class UserService implements IUserService {
         if (data.password) {
             const hashedPassword = await this.passwordService.hashPassword(data.password);
             if (!hashedPassword) {
-                this.logAction(ServiceNameEnum.UserService, LogLevelEnum.Error, ActionTypeEnum.CreateUserFailure, `Failed to hash password for user with email: ${data.email}`);
+                this.logAction(ServiceNameEnum.UserService, LogLevelEnum.ERROR, ActionTypeEnum.CreateUserFailure, `Failed to hash password for user with email: ${data.email}`);
                 throw new AppError(ERRORS.INTERNAL_ERROR, 500);
             }
             data.password = hashedPassword;
         }
         const user = this.userRepo.create(data);
-        this.logAction(ServiceNameEnum.UserService, LogLevelEnum.Info, ActionTypeEnum.CreateUserSuccess, `User created with email: ${data.email}`);
+        this.logAction(ServiceNameEnum.UserService, LogLevelEnum.INFO, ActionTypeEnum.CreateUserSuccess, `User created with email: ${data.email}`);
         return this.userRepo.save(user);
     }
 
@@ -46,7 +46,7 @@ export class UserService implements IUserService {
     public async getUsers (): Promise<IGetUserResponse[]> {
         const users = await this.userRepo.find();
         const dtos = users.map(UserService.fromEntity);
-        this.logAction(ServiceNameEnum.UserService, LogLevelEnum.Info, ActionTypeEnum.DataAccess, `Retrieved all users`);
+        this.logAction(ServiceNameEnum.UserService, LogLevelEnum.INFO, ActionTypeEnum.DataAccess, `Retrieved all users`);
         return dtos;
     }
 
@@ -58,7 +58,7 @@ export class UserService implements IUserService {
     public async getUser (id: string): Promise<IGetUserResponse> {
         const user = await this.userRepo.findOneBy({ id: id });
         if (!user) {
-            this.logAction(ServiceNameEnum.UserService, LogLevelEnum.Warning, ActionTypeEnum.DataAccess, `Failed to retrieve user with ID: ${id} - User not found`);
+            this.logAction(ServiceNameEnum.UserService, LogLevelEnum.WARNING, ActionTypeEnum.DataAccess, `Failed to retrieve user with ID: ${id} - User not found`);
             throw new AppError(ERRORS.USER_NOT_FOUND, 404);
         }
         return UserService.fromEntity(user);
@@ -72,12 +72,12 @@ export class UserService implements IUserService {
     public async deleteUser (id: string): Promise<void> {
         const user = await this.userRepo.findOneBy({ id: id });
         if (!user) {
-            this.logAction(ServiceNameEnum.UserService, LogLevelEnum.Warning, ActionTypeEnum.DeleteUserFailure, `Failed to delete user with ID: ${id} - User not found`);
+            this.logAction(ServiceNameEnum.UserService, LogLevelEnum.WARNING, ActionTypeEnum.DeleteUserFailure, `Failed to delete user with ID: ${id} - User not found`);
             throw new AppError(ERRORS.USER_NOT_FOUND, 404);
         }
 
         await this.userRepo.remove(user);
-        this.logAction(ServiceNameEnum.UserService, LogLevelEnum.Info, ActionTypeEnum.DeleteUserSuccess, `User deleted with email: ${user.email}`);
+        this.logAction(ServiceNameEnum.UserService, LogLevelEnum.INFO, ActionTypeEnum.DeleteUserSuccess, `User deleted with email: ${user.email}`);
     }
 
     private static fromEntity (entity: User): IGetUserResponse {

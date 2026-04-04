@@ -25,7 +25,7 @@ export class RequestLoggerMiddleware {
 
             this.securityLogger.createSecurityLog({
                 ServiceName: ServiceNameEnum.API,
-                LogLevel: LogLevelEnum.Info,
+                LogLevel: LogLevelEnum.INFO,
                 ActionType: ActionTypeEnum.HttpRequest,
                 Message: logMessage
             }).catch(err => console.error("Request logging failed", err));
