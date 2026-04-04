@@ -9,5 +9,6 @@ export const ERRORS = {
     USER_NOT_FOUND: "User not found",
     INVALID_USER_ID: "Invalid user ID format",
     INVALID_REQUEST: "Invalid request",
+    PASSWORD_OPERATION_FAILURE: "Password operation failed",
     INTERNAL_ERROR: "Internal server error",
 };

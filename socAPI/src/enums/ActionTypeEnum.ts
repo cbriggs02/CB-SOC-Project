@@ -46,4 +46,15 @@ export enum ActionTypeEnum {
      * Represents a successful user authentication, indicating that the user has successfully logged in or accessed the system without any issues.
      */
     AuthenticationSuccess = 'authentication_success',
+
+    /**
+     * Represents a successful password change, indicating that the user's password was updated successfully without any issues.
+     */
+    ChangePasswordSuccess = 'change_password_success',
+
+
+    /**
+     * Represents a failure in changing a user's password, which could be due to reasons such as validation errors, database issues, or other problems that prevent the successful update of the user's password. This type of log is important for monitoring and troubleshooting issues related to password management and user security.
+     */
+    ChangePasswordFailure = 'change_password_failure'
 }

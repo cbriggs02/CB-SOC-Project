@@ -14,6 +14,11 @@ export enum ServiceNameEnum {
     UserService = "UserService",
 
     /**
+     * Represents the Password Service, which is responsible for handling operations related to password management, such as hashing passwords and changing passwords.
+     */
+    PasswordService = "PasswordService",
+
+    /**
      * Represents the Security Log Service, which is responsible for handling operations related to security logging, such as recording security events, retrieving logs, and managing log data.
      */
     AuthenticationService = "AuthenticationService",
