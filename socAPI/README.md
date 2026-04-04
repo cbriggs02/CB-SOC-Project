@@ -59,18 +59,21 @@ npm install
 Create a `.env` file in the root:
 
 ```env
+NODE_ENV={app_env}
 PORT=3000
-DB_HOST=(database_host)
-DB_USER=(database_user)
-DB_PASSWORD=(database_password)
-DB_DATABASE=(database_name)
-DB_ENCRYPT=true
-DB_TRUST_CERT=true
+DB_HOST={database_host}
+DB_USER={databse_user}
+DB_PASSWORD={database_password}
+DB_DATABASE={database_name}
 ```
 
 > Adjust the database configuration depending on your DB type (PostgreSQL, MySQL, etc.).
 
----
+### 4. Run the Seed Script
+
+```bash
+npm run seed
+```
 
 ## Database
 
