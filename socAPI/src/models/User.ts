@@ -4,7 +4,7 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
  * User entity representing a user in the system
  * This class is decorated with TypeORM decorators to define the database schema
  */
-@Entity()
+@Entity("users")
 export class User {
 
     /**
