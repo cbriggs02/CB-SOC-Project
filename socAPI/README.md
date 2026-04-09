@@ -60,11 +60,16 @@ Create a `.env` file in the root:
 
 ```env
 NODE_ENV={app_env}
+SWAGGER_ENABLED={true/false enable swagger in dev}
 PORT=3000
 DB_HOST={database_host}
 DB_USER={databse_user}
 DB_PASSWORD={database_password}
 DB_DATABASE={database_name}
+DB_ENCRYPT=true
+DB_TRUST_CERT=true
+JWT_SECRET={securely generated key}
+DEV_USER_PASSWORD={password for dev generated test users}
 ```
 
 > Adjust the database configuration depending on your DB type (PostgreSQL, MySQL, etc.).
