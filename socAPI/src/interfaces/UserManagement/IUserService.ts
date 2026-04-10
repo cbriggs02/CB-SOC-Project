@@ -1,32 +1,31 @@
-import { CreateUserDTO } from "../../models/DTOs/CreateUserDTO";
-import { User } from "../../models/User";
-import { IGetUserResponse } from "./IGetUserResponse";
+import { CreateUserDTO } from '../../models/DTOs/CreateUserDTO';
+import { User } from '../../models/User';
+import { IGetUserResponse } from './IGetUserResponse';
 
 /**
- * Interface for user-related services
+ * @description Interface for user-related services
  */
 export interface IUserService {
+    /**
+     * @description Creates a new user
+     * @param data
+     */
+    createUser(data: Partial<CreateUserDTO>): Promise<User>;
 
     /**
-     * Creates a new user
-     * @param data 
+     * @description Retrieves all users
      */
-    createUser (data: Partial<CreateUserDTO>): Promise<User>;
+    getUsers(): Promise<IGetUserResponse[]>;
 
     /**
-     * Retrieves all users
+     * @description Retrieves a user by ID
+     * @param id
      */
-    getUsers (): Promise<IGetUserResponse[]>;
+    getUser(id: string): Promise<IGetUserResponse | null>;
 
     /**
-     * Retrieves a user by ID
-     * @param id 
+     * @description Deletes a user by ID
+     * @param id
      */
-    getUser (id: string): Promise<IGetUserResponse>;
-
-    /**
-     * Deletes a user by ID
-     * @param id 
-     */
-    deleteUser (id: string): Promise<void>;
+    deleteUser(id: string): Promise<void>;
 }

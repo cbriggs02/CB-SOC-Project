@@ -1,36 +1,50 @@
-import { AppDataSource } from "../../config/data-source";
-import { User } from "../../models/User";
-import { IUserService } from "../../interfaces/UserManagement/IUserService";
-import { IGetUserResponse } from "../../interfaces/UserManagement/IGetUserResponse";
-import { ERRORS } from "../../constants/errors";
-import { SecurityLoggerService } from "../Security/SecurityLoggerService";
-import { ActionTypeEnum } from "../../enums/ActionTypeEnum";
-import { LogLevelEnum } from "../../enums/LogLevelEnum";
-import { ServiceNameEnum } from "../../enums/ServiceNameEnum";
-import { CreateSecurityLogDTO } from "../../models/DTOs/CreateSecurityLogDTO";
-import { AppError } from "../../errors/AppError";
-import { PasswordService } from "./PasswordService";
-import { CreateUserDTO } from "../../models/DTOs/CreateUserDTO";
+import { User } from '../../models/User';
+import { IUserService } from '../../interfaces/UserManagement/IUserService';
+import { IGetUserResponse } from '../../interfaces/UserManagement/IGetUserResponse';
+import { ERROR_MESSAGES } from '../../constants/errors';
+import { ActionTypeEnum } from '../../enums/ActionTypeEnum';
+import { LogLevelEnum } from '../../enums/LogLevelEnum';
+import { ServiceNameEnum } from '../../enums/ServiceNameEnum';
+import { CreateSecurityLogDTO } from '../../models/DTOs/CreateSecurityLogDTO';
+import { AppError } from '../../errors/AppError';
+import { CreateUserDTO } from '../../models/DTOs/CreateUserDTO';
+import { inject, injectable } from 'tsyringe';
+import { DIContainerTokensEnum } from '../../enums/DIContainerTokensEnum';
+import { Repository } from 'typeorm';
+import { ISecurityLoggerService } from '../../interfaces/SecurityLogger/ISecurityLoggerService';
+import { IPasswordService } from '../../interfaces/UserManagement/IPasswordService';
 
 /**
- * Creates a new user with the provided data. If a password is included, it will be hashed before saving.
+ * @description Creates a new user with the provided data. If a password is included, it will be hashed before saving.
  */
+@injectable()
 export class UserService implements IUserService {
-    private userRepo = AppDataSource.getRepository(User);
-    private passwordService = new PasswordService();
-    private securityLogger = new SecurityLoggerService();
+    /**
+     * @description Initializes the UserService with the necessary repositories and services for user management and security logging.
+     * @param userRepo
+     * @param securityLogger
+     * @param passwordService
+     */
+    constructor(
+        @inject(DIContainerTokensEnum.UserRepository)
+        private readonly userRepo: Repository<User>,
+        @inject(DIContainerTokensEnum.ISecurityLoggerService)
+        private readonly securityLogger: ISecurityLoggerService,
+        @inject(DIContainerTokensEnum.IPasswordService)
+        private readonly passwordService: IPasswordService,
+    ) {}
 
     /**
-     * Creates a new user with the provided data. If a password is included, it will be hashed before saving.
-     * @param data 
-     * @returns 
+     * @description Creates a new user with the provided data. If a password is included, it will be hashed before saving.
+     * @param data
+     * @returns
      */
-    public async createUser (data: Partial<CreateUserDTO>): Promise<User> {
+    public async createUser(data: Partial<CreateUserDTO>): Promise<User> {
         if (data.password) {
             const hashedPassword = await this.passwordService.hashPassword(data.password);
             if (!hashedPassword) {
                 this.logAction(ServiceNameEnum.UserService, LogLevelEnum.ERROR, ActionTypeEnum.CreateUserFailure, `Failed to hash password for user with email: ${data.email}`);
-                throw new AppError(ERRORS.INTERNAL_ERROR, 500);
+                throw new AppError(ERROR_MESSAGES.GENERAL.INTERNAL_ERROR, 500);
             }
             data.password = hashedPassword;
         }
@@ -40,10 +54,10 @@ export class UserService implements IUserService {
     }
 
     /**
-     * Gets all users
-     * @returns 
+     * @description Gets all users
+     * @returns
      */
-    public async getUsers (): Promise<IGetUserResponse[]> {
+    public async getUsers(): Promise<IGetUserResponse[]> {
         const users = await this.userRepo.find();
         const dtos = users.map(UserService.fromEntity);
         this.logAction(ServiceNameEnum.UserService, LogLevelEnum.INFO, ActionTypeEnum.DataAccess, `Retrieved all users`);
@@ -51,51 +65,51 @@ export class UserService implements IUserService {
     }
 
     /**
-     * Retrieves a user by ID
-     * @param id 
-     * @returns 
+     * @description Retrieves a user by ID
+     * @param id
+     * @returns
      */
-    public async getUser (id: string): Promise<IGetUserResponse> {
+    public async getUser(id: string): Promise<IGetUserResponse | null> {
         const user = await this.userRepo.findOneBy({ id: id });
         if (!user) {
-            this.logAction(ServiceNameEnum.UserService, LogLevelEnum.WARNING, ActionTypeEnum.DataAccess, `Failed to retrieve user with ID: ${id} - User not found`);
-            throw new AppError(ERRORS.USER_NOT_FOUND, 404);
+            return null;
         }
+        this.logAction(ServiceNameEnum.UserService, LogLevelEnum.INFO, ActionTypeEnum.DataAccess, `Retrieved user with ID: ${id}`);
         return UserService.fromEntity(user);
     }
 
     /**
-     * Deletes a user by ID
-     * @param id 
-     * @returns 
+     * @description Deletes a user by ID
+     * @param id
+     * @returns
      */
-    public async deleteUser (id: string): Promise<void> {
+    public async deleteUser(id: string): Promise<void> {
         const user = await this.userRepo.findOneBy({ id: id });
         if (!user) {
             this.logAction(ServiceNameEnum.UserService, LogLevelEnum.WARNING, ActionTypeEnum.DeleteUserFailure, `Failed to delete user with ID: ${id} - User not found`);
-            throw new AppError(ERRORS.USER_NOT_FOUND, 404);
+            throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, 404);
         }
 
         await this.userRepo.remove(user);
         this.logAction(ServiceNameEnum.UserService, LogLevelEnum.INFO, ActionTypeEnum.DeleteUserSuccess, `User deleted with email: ${user.email}`);
     }
 
-    private static fromEntity (entity: User): IGetUserResponse {
+    private static fromEntity(entity: User): IGetUserResponse {
         const { id, firstName, lastName, email } = entity;
         const dto: IGetUserResponse = {
             id: id,
             fullName: `${firstName} ${lastName}`,
-            email: email
+            email: email,
         };
         return dto;
     }
 
-    private logAction (serviceName: ServiceNameEnum, logLevel: LogLevelEnum, actionType: ActionTypeEnum, message: string) {
+    private logAction(serviceName: ServiceNameEnum, logLevel: LogLevelEnum, actionType: ActionTypeEnum, message: string) {
         const logDTO: CreateSecurityLogDTO = {
             ServiceName: serviceName,
             LogLevel: logLevel,
             ActionType: actionType,
-            Message: message
+            Message: message,
         };
         this.securityLogger.createSecurityLog(logDTO);
     }
