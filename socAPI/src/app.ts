@@ -1,40 +1,41 @@
-import express, { Application } from "express";
-import userRoutes from "./routes/userRoutes";
-import passwordRoutes from "./routes/passwordRoutes";
-import swaggerUi from "swagger-ui-express";
-import { RequestContextMiddleware } from "./middleware/RequestContextMiddleware";
-import { RequestLoggerMiddleware } from "./middleware/RequestLoggerMiddleware";
-import { GlobalErrorHandler } from "./middleware/GlobalErrorHandler";
-import path from "path";
-import YAML from "yamljs";
+import 'reflect-metadata';
+import express from 'express';
+import { registerDependencies } from './dependency-injection/container';
+import { RequestLoggerMiddleware } from './middleware/RequestLoggerMiddleware';
+import { GlobalErrorMiddleware } from './middleware/GlobalErrorMiddleware';
+import { RequestContextMiddleware } from './middleware/RequestContextMiddleware';
+import swaggerUi from 'swagger-ui-express';
+import { container } from 'tsyringe';
+import { env } from './config/env';
+import { getSwaggerSpec } from './config/swagger';
+import { useContainer, useExpressServer } from 'routing-controllers';
+import { controllers } from './controllers';
 
 /**
- * Creates and configures the Express application.
- * @returns The configured Express application.
+ * @description Creates the Express application with all configured routes and middleware.
+ * @returns The configured Express application instance.
  */
-export const createApp = (): Application => {
-    const app = express();
+export function createApp() {
+    registerDependencies();
 
-    app.set("trust proxy", true);
+    // Configure routing-controllers to use tsyringe for dependency injection
+    const containerAdapter = {
+        get: <T>(someClass: any) => container.resolve<T>(someClass),
+    };
+    useContainer(containerAdapter);
+
+    const app = express();
     app.use(express.json());
 
-    // Middleware
-    const contextMiddleware = new RequestContextMiddleware();
-    app.use(contextMiddleware.use.bind(contextMiddleware));
-    const requestLogger = new RequestLoggerMiddleware();
-    app.use(requestLogger.use);
+    useExpressServer(app, {
+        controllers,
+        middlewares: [RequestContextMiddleware, RequestLoggerMiddleware, GlobalErrorMiddleware],
+        defaultErrorHandler: false,
+    });
 
-    // Swagger
-    const swaggerDocument = YAML.load(path.join(__dirname, "../swagger/swagger.yaml"));
-    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    if (env.SWAGGER_ENABLED) {
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(getSwaggerSpec()));
+    }
 
-    // Routes
-    app.get("/", (_req, res) => res.send("SOC API running"));
-    app.use("/api/users", userRoutes);
-    app.use("/api/users", passwordRoutes);
-
-    // Error handle
-    const globalErrorHandler = new GlobalErrorHandler();
-    app.use(globalErrorHandler.handle);
     return app;
-};
+}

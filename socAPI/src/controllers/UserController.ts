@@ -1,60 +1,113 @@
-import { Request, Response } from "express";
-import { UserService } from "../services/UserManagement/UserService";
-import { CreateUserDTO } from "../models/DTOs/CreateUserDTO";
-import { validate } from "class-validator";
-import { plainToInstance } from "class-transformer";
+import { JsonController, Post, Get, Param, Delete, Body, BadRequestError, NotFoundError } from 'routing-controllers';
+import { CreateUserDTO } from '../models/DTOs/CreateUserDTO';
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
+import { inject, injectable } from 'tsyringe';
+import { IUserService } from '../interfaces/UserManagement/IUserService';
+import { DIContainerTokensEnum } from '../enums/DIContainerTokensEnum';
+import { IPasswordService } from '../interfaces/UserManagement/IPasswordService';
+import { IGetUserResponse } from '../interfaces/UserManagement/IGetUserResponse';
+import { OpenAPI } from 'routing-controllers-openapi';
 
 /**
- * Controller for user-related operations. Handles incoming requests, interacts with the user service, and sends appropriate responses.
+ * @description Controller for user-related operations. Handles incoming requests, interacts with the user service, and sends appropriate responses.
  */
+@injectable()
+@JsonController('/api/users')
+@OpenAPI({ tags: ['User Management'] })
 export class UserController {
-    private readonly userService = new UserService();
+    /**
+     * @description Initializes a new instance of the UserController class.
+     * @param userService
+     * @param passwordService
+     */
+    constructor(
+        @inject(DIContainerTokensEnum.IUserService)
+        private userService: IUserService,
+        @inject(DIContainerTokensEnum.IPasswordService)
+        private passwordService: IPasswordService,
+    ) {}
 
     /**
-     * Creates a new user
-     * @param req 
-     * @param res 
+     * @description Creates a new user with the provided data.
+     * @returns
      */
-    public async createUser (req: Request, res: Response) {
-        const dto = plainToInstance(CreateUserDTO, req.body);
-        const errors = await validate(dto);
+    @Post()
+    @OpenAPI({
+        summary: 'Creates a new user',
+        responses: {
+            201: { description: 'User created successfully' },
+            400: { description: 'Invalid user data' },
+        },
+    })
+    public async createUser(@Body() body: CreateUserDTO) {
+        const dto = plainToInstance(CreateUserDTO, body);
+        const dtoErrors = await validate(dto);
 
-        if (errors.length > 0) {
-            const messages = errors.flatMap(err => Object.values(err.constraints || {}));
-            return res.status(400).json({ errors: messages });
+        if (dtoErrors.length > 0) {
+            const messages = dtoErrors.flatMap((err) => Object.values(err.constraints || {}));
+            throw new BadRequestError(messages.join(', '));
+        }
+
+        const { valid, errors } = await this.passwordService.validatePassword(dto.password);
+        if (!valid) {
+            throw new BadRequestError(errors.join(', '));
         }
 
         const user = await this.userService.createUser(dto);
-        res.status(201).json({ message: "User created successfully", id: user.id });
+        return { message: 'User created successfully', id: user.id };
     }
 
     /**
-     * Gets all users
-     * @param _req 
-     * @param res 
+     * @description Gets all users.
+     * @returns
      */
-    public async getUsers (_req: Request, res: Response) {
-        const users = await this.userService.getUsers();
-        res.json(users);
+    @Get()
+    @OpenAPI({
+        summary: 'Gets all users',
+        responses: {
+            200: { description: 'Returns a list of users' },
+        },
+    })
+    public async getUsers(): Promise<IGetUserResponse[]> {
+        return await this.userService.getUsers();
     }
 
     /**
-     * Retrieves a user by ID
-     * @param req 
-     * @param res 
+     * @description Gets a user by ID.
+     * @param id
+     * @returns
      */
-    public async getUser (req: Request<{ id: string }>, res: Response) {
-        const user = await this.userService.getUser(req.params.id);
-        res.json(user);
+    @Get('/:id')
+    @OpenAPI({
+        summary: 'Gets a user by ID',
+        responses: {
+            200: { description: 'Returns the requested user' },
+            404: { description: 'User not found' },
+        },
+    })
+    public async getUser(@Param('id') id: string): Promise<IGetUserResponse> {
+        const user = await this.userService.getUser(id);
+        if (!user) {
+            throw new NotFoundError();
+        }
+        return user;
     }
 
     /**
-     * Deletes a user by ID
-     * @param req 
-     * @param res 
+     * @description Deletes a user by ID.
+     * @param id
      */
-    public async deleteUser (req: Request<{ id: string }>, res: Response) {
-        await this.userService.deleteUser(req.params.id);
-        res.status(204).send()
+    @Delete('/:id')
+    @OpenAPI({
+        summary: 'Deletes a user',
+        responses: {
+            204: { description: 'User deleted successfully' },
+            404: { description: 'User not found' },
+        },
+    })
+    public async deleteUser(@Param('id') id: string) {
+        await this.userService.deleteUser(id);
+        return null;
     }
 }
