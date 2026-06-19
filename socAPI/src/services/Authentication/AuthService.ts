@@ -13,13 +13,13 @@ import { env } from '../../config/env';
 import { AuthRequestDTO } from '../../models/DTOs/AuthRequestDTO';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../../errors/AppError';
-import { JwtPayload } from '../../interfaces/Authentication/IJwtPayload';
+import { UserPayload } from '../../interfaces/Authentication/IUserPayload';
 
 /**
  * @description AuthService is responsible for handling user authentication, including verifying credentials and generating JWT tokens.
  * It interacts with the UserRepository to retrieve user data, the PasswordService to validate passwords, and the SecurityLoggerService to log authentication events.
  * The authenticate method checks if the provided email and password are valid, logs the outcome, and returns a JWT token if authentication is successful. The verifyToken method validates
- *  a given JWT token and returns its payload if valid.
+ * a given JWT token and returns its payload if valid.
  */
 @injectable()
 export class AuthService implements IAuthService {
@@ -28,17 +28,14 @@ export class AuthService implements IAuthService {
 
     /**
      * @description Initializes a new instance of the AuthService class.
-     * @param userRepo
-     * @param securityLogger
-     * @param passwordService
+     * @param userRepo - The repository for accessing user data in the database.
+     * @param securityLogger - The service responsible for logging security-related events, such as authentication attempts.
+     * @param passwordService - The service responsible for handling password-related operations, such as hashing and comparison.
      */
     constructor(
-        @inject(DIContainerTokensEnum.UserRepository)
-        private readonly userRepo: Repository<User>,
-        @inject(DIContainerTokensEnum.ISecurityLoggerService)
-        private readonly securityLogger: ISecurityLoggerService,
-        @inject(DIContainerTokensEnum.IPasswordService)
-        private readonly passwordService: IPasswordService,
+        @inject(DIContainerTokensEnum.UserRepository) private readonly userRepo: Repository<User>,
+        @inject(DIContainerTokensEnum.ISecurityLoggerService) private readonly securityLogger: ISecurityLoggerService,
+        @inject(DIContainerTokensEnum.IPasswordService) private readonly passwordService: IPasswordService,
     ) {}
 
     /**
@@ -59,24 +56,24 @@ export class AuthService implements IAuthService {
         }
 
         this.logAction(ServiceNameEnum.AuthService, LogLevelEnum.INFO, ActionTypeEnum.AuthSuccess, `User authenticated with email: ${email}`);
-        const payload: JwtPayload = { userId: user.id, email: user.email };
+        const payload: UserPayload = { userId: user.id, email: user.email, role: user.role };
         return this.generateToken(payload);
     }
 
     /**
      * @description Verifies the authenticity of a JWT token and returns its payload.
-     * @param token
-     * @returns
+     * @param token - The JWT token to be verified.
+     * @returns The payload contained within the JWT token if it is valid. If the token is invalid or expired, an AppError is thrown indicating that the token is not valid.
      */
-    public verifyToken(token: string): JwtPayload {
+    public verifyToken(token: string): UserPayload {
         try {
-            return jwt.verify(token, this.secret) as JwtPayload;
+            return jwt.verify(token, this.secret) as UserPayload;
         } catch (err) {
             throw new AppError('Invalid or expired token', 401);
         }
     }
 
-    private generateToken(payload: JwtPayload): string {
+    private generateToken(payload: UserPayload): string {
         return jwt.sign(payload, this.secret, { expiresIn: this.expiresIn });
     }
 

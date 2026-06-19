@@ -10,6 +10,7 @@ import { env } from './config/env';
 import { getSwaggerSpec } from './config/swagger';
 import { useContainer, useExpressServer } from 'routing-controllers';
 import { controllers } from './controllers';
+import { AuthMiddleware } from './middleware/AuthMiddleware';
 
 /**
  * @description Creates the Express application with all configured routes and middleware.
@@ -18,18 +19,31 @@ import { controllers } from './controllers';
 export function createApp() {
     registerDependencies();
 
-    // Configure routing-controllers to use tsyringe for dependency injection
     const containerAdapter = {
         get: <T>(someClass: any) => container.resolve<T>(someClass),
     };
     useContainer(containerAdapter);
 
     const app = express();
-    app.use(express.json());
-
     useExpressServer(app, {
         controllers,
-        middlewares: [RequestContextMiddleware, RequestLoggerMiddleware, GlobalErrorMiddleware],
+        middlewares: [RequestContextMiddleware, RequestLoggerMiddleware, AuthMiddleware, GlobalErrorMiddleware],
+        authorizationChecker: async (action, roles) => {
+            const user = action.request.user;
+            if (!user) {
+                return false;
+            }
+            if (roles.length === 0) {
+                return true;
+            }
+            return roles.includes(user.role);
+        },
+
+        currentUserChecker: async (action) => {
+            return action.request.user;
+        },
+        validation: true,
+        classTransformer: true,
         defaultErrorHandler: false,
     });
 

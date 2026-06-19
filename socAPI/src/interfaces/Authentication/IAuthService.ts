@@ -1,5 +1,5 @@
 import { AuthRequestDTO } from '../../models/DTOs/AuthRequestDTO';
-import { JwtPayload } from '../../interfaces/Authentication/IJwtPayload';
+import { UserPayload } from './IUserPayload';
 
 /**
  * @description Interface for the authentication service. This service is responsible for authenticating users based on their email and password.
@@ -20,5 +20,5 @@ export interface IAuthService {
      * @param token The JWT token to verify.
      * @returns The payload contained in the token.
      */
-    verifyToken(token: string): JwtPayload;
+    verifyToken(token: string): UserPayload;
 }
