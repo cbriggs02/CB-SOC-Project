@@ -37,6 +37,6 @@ export const env = {
 };
 
 if (errors.length > 0) {
-    console.error('Missing environment variables:', errors.join(', '));
+    console.error('Missing required environment variables');
     process.exit(1);
 }
