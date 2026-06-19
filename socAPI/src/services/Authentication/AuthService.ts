@@ -13,7 +13,7 @@ import { env } from '../../config/env';
 import { AuthRequestDTO } from '../../models/DTOs/AuthRequestDTO';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../../errors/AppError';
-import { UserPayload } from '../../interfaces/Authentication/IUserPayload';
+import { JwtPayload } from '../../interfaces/Authentication/IJWTPayload';
 
 /**
  * @description AuthService is responsible for handling user authentication, including verifying credentials and generating JWT tokens.
@@ -56,7 +56,7 @@ export class AuthService implements IAuthService {
         }
 
         this.logAction(ServiceNameEnum.AuthService, LogLevelEnum.INFO, ActionTypeEnum.AuthSuccess, `User authenticated with email: ${email}`);
-        const payload: UserPayload = { userId: user.id, email: user.email, role: user.role };
+        const payload: JwtPayload = { userId: user.id, email: user.email, role: user.role };
         return this.generateToken(payload);
     }
 
@@ -65,15 +65,15 @@ export class AuthService implements IAuthService {
      * @param token - The JWT token to be verified.
      * @returns The payload contained within the JWT token if it is valid. If the token is invalid or expired, an AppError is thrown indicating that the token is not valid.
      */
-    public verifyToken(token: string): UserPayload {
+    public verifyToken(token: string): JwtPayload {
         try {
-            return jwt.verify(token, this.secret) as UserPayload;
+            return jwt.verify(token, this.secret) as JwtPayload;
         } catch (err) {
             throw new AppError('Invalid or expired token', 401);
         }
     }
 
-    private generateToken(payload: UserPayload): string {
+    private generateToken(payload: JwtPayload): string {
         return jwt.sign(payload, this.secret, { expiresIn: this.expiresIn });
     }
 

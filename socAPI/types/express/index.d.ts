@@ -1,4 +1,4 @@
-import { JwtPayload } from "../../src/interfaces/Authentication/IUserPayload";
+import { JwtPayload } from "../../src/interfaces/Authentication/IJWTPayload";
 export {};
 
 /**
