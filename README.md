@@ -1,12 +1,10 @@
 # CB-SOC Project
 
+![Azure Boards Status](https://dev.azure.com/chrisbriglio/412d19b7-00ca-4510-9207-4148c6a4d03d/ebf0536d-b4db-4a8d-a858-a711088b414b/_apis/work/boardbadge/c04f8fe9-2d6e-4fbc-baba-6a67190a41ce)
+
 A lightweight **REST API** built with **Node.js** and **TypeScript** for basic user management, with **Swagger-documented endpoints** and an **internal logging system**. The API runs in a **Linux VM** and leverages **Infrastructure as Code (IaC)** for deploying supporting components including **WAF, SIEM, database, and API**.  
 
 This project emphasizes **observability, security, and compliance**, demonstrating integration of backend development with cybersecurity monitoring tools in a **modular, containerized environment**.  
-
-![Azure Boards Status](https://dev.azure.com/chrisbriglio/412d19b7-00ca-4510-9207-4148c6a4d03d/ebf0536d-b4db-4a8d-a858-a711088b414b/_apis/work/boardbadge/c04f8fe9-2d6e-4fbc-baba-6a67190a41ce)
-
-Task tracking managed via Azure DevOps Boards, CI/CD via GitHub Actions
 
 ---
 
@@ -46,6 +44,32 @@ Each module has its own `README.md` with detailed setup and usage instructions.
 * **Linux VM** with Infrastructure as Code (IaC) for WAF, SIEM, database, and API  
 
 ---
+
+## CI/CD & DevOps
+
+This project incorporates modern CI/CD and DevOps practices to ensure code quality, security, and deployment readiness:
+
+- GitHub Actions – Continuous Integration
+
+  - Automatically builds on every push and pull request
+  - Ensures code changes are validated before being merged
+
+- Docker – Continuous Delivery
+
+  - Builds a Docker image automatically on merges to the main branch
+  - Enables consistent, environment-independent deployment
+
+- CodeQL – Security Analysis
+
+  - Performs automated static code analysis to identify potential vulnerabilities and code quality issues
+  - Runs on pull requests, pushes, and scheduled scans
+
+- Azure DevOps Boards – Project Management
+
+  - Used for task tracking, backlog management, and agile workflow organization
+
+---
+
 
 ## Getting Started
 
