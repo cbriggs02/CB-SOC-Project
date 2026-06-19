@@ -1,3 +1,5 @@
+import { UserRoleEnum } from '../../enums/UserRoleEnum';
+
 /**
  * @description Interface representing the response structure for retrieving user information.
  * This interface defines the properties that will be included in the response
@@ -7,4 +9,5 @@ export interface IGetUserResponse {
     id: string;
     fullName: string;
     email: string;
+    role: UserRoleEnum;
 }

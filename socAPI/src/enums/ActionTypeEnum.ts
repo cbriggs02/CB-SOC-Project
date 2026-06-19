@@ -11,6 +11,9 @@ export enum ActionTypeEnum {
     DeleteUserFailure = 'delete_user_failure',
     AuthFailure = 'authentication_failure',
     AuthSuccess = 'authentication_success',
+    AccessDenied = 'AccessDenied',
     ChangePasswordSuccess = 'change_password_success',
     ChangePasswordFailure = 'change_password_failure',
+    AssignRoleSuccess = 'assign_role_success',
+    AssignRoleFailure = 'assign_role_failure',
 }

@@ -11,6 +11,8 @@ import { DIContainerTokensEnum } from '../enums/DIContainerTokensEnum';
 import { Repository } from 'typeorm';
 import { AuthService } from '../services/Authentication/AuthService';
 import { IAuthService } from '../interfaces/Authentication/IAuthService';
+import { IRoleService } from '../interfaces/Authorization/IRoleService';
+import { RoleService } from '../services/Authorization/RoleService';
 
 /**
  * @description Registers all dependencies with tsyringe
@@ -23,4 +25,5 @@ export const registerDependencies = () => {
     container.registerSingleton<IUserService>(DIContainerTokensEnum.IUserService, UserService);
     container.registerSingleton<IPasswordService>(DIContainerTokensEnum.IPasswordService, PasswordService);
     container.registerSingleton<IAuthService>(DIContainerTokensEnum.IAuthService, AuthService);
+    container.registerSingleton<IRoleService>(DIContainerTokensEnum.IRoleService, RoleService);
 };

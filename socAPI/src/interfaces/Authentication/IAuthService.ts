@@ -1,5 +1,5 @@
 import { AuthRequestDTO } from '../../models/DTOs/AuthRequestDTO';
-import { UserPayload } from './IJWTPayload';
+import { UserPayload } from './IUserPayload';
 
 /**
  * @description Interface for the authentication service. This service is responsible for authenticating users based on their email and password.

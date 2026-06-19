@@ -1,3 +1,4 @@
+import { IRoleService } from '../interfaces/Authorization/IRoleService';
 /**
  * @description This file defines the tokens used for dependency injection in the application.
  * These tokens are used to register and resolve dependencies in the DI container.
@@ -8,4 +9,5 @@ export enum DIContainerTokensEnum {
     IUserService = 'IUserService',
     IPasswordService = 'IPasswordService',
     IAuthService = 'IAuthService',
+    IRoleService = 'IRoleService',
 }

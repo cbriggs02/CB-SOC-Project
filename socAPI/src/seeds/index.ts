@@ -13,23 +13,27 @@ import { registerDependencies } from '../dependency-injection/container';
  */
 const runSeeds = async () => {
     if (env.ENV !== EnvironmentTypeEnum.DEVELOPMENT) {
-        console.log('Seeding only allowed in development');
+        console.log('[SEED] Seeding only allowed in development');
         process.exit(0);
     }
 
     try {
+        console.log('[SEED] Initializing database...');
         await AppDataSource.initialize();
-        console.log('Database connected');
+
+        console.log('[SEED] Database connected');
 
         registerDependencies();
 
+        console.log('[SEED] Running user seeder...');
         const userSeeder = container.resolve(UserSeeder);
         await userSeeder.seed();
 
-        console.log('Seeding complete');
+        console.log('[SEED] Seeding complete');
+
         process.exit(0);
     } catch (err) {
-        console.error('Seeding failed', err);
+        console.error('[SEED] Seeding failed', err);
         process.exit(1);
     }
 };

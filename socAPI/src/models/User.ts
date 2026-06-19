@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { UserRoleEnum } from '../enums/UserRoleEnum';
 
 /**
  * @description User entity representing a user in the system
@@ -20,4 +21,7 @@ export class User {
 
     @Column({ type: 'nvarchar', length: 255 })
     password!: string;
+
+    @Column({ type: 'simple-enum', enum: UserRoleEnum, default: UserRoleEnum.USER })
+    role!: UserRoleEnum;
 }
