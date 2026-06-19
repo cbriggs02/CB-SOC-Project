@@ -37,10 +37,6 @@ export const env = {
 };
 
 if (errors.length > 0) {
-    if (process.env.NODE_ENV === 'development') {
-        console.error('Missing environment variables:', errors);
-    } else {
-        console.error('Missing required environment variables');
-    }
+    console.error('Missing required environment variables');
     process.exit(1);
 }
