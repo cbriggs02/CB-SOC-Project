@@ -6,6 +6,8 @@ This project emphasizes **observability, security, and compliance**, demonstrati
 
 ![Azure Boards Status](https://dev.azure.com/chrisbriglio/412d19b7-00ca-4510-9207-4148c6a4d03d/ebf0536d-b4db-4a8d-a858-a711088b414b/_apis/work/boardbadge/c04f8fe9-2d6e-4fbc-baba-6a67190a41ce)
 
+Task tracking managed via Azure DevOps Boards, CI/CD via GitHub Actions
+
 ---
 
 ## Project Structure
