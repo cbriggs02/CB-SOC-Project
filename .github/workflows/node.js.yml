@@ -25,10 +25,14 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+        
     - name: Install dependencies
-      run: npm ci
-      working-directory: ./socAPI
+      run: |
+        cd socAPI
+        npm ci
+
       
     - name: Build TypeScript
-      run: npm run build
-      working-directory: ./socAPI
+      run: |
+        cd socAPI
+        npm build
