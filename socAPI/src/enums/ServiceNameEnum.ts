@@ -7,6 +7,7 @@ export enum ServiceNameEnum {
     UserService = 'UserService',
     PasswordService = 'PasswordService',
     AuthService = 'AuthService',
+    AuthorizationService = 'AuthorizationService',
+    RoleService = 'RoleService',
     SecurityLogService = 'SecurityLogService',
-    ParameterValidatorService = 'ParameterValidatorService',
 }

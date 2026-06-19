@@ -21,26 +21,23 @@ import { IPasswordService } from '../../interfaces/UserManagement/IPasswordServi
 export class UserService implements IUserService {
     /**
      * @description Initializes the UserService with the necessary repositories and services for user management and security logging.
-     * @param userRepo
-     * @param securityLogger
-     * @param passwordService
+     * @param userRepo - The repository for accessing user data in the database.
+     * @param securityLogger - The service responsible for logging security-related events, such as user creation and deletion.
+     * @param passwordService - The service responsible for handling password-related operations, such as hashing passwords before saving them to the database.
      */
     constructor(
-        @inject(DIContainerTokensEnum.UserRepository)
-        private readonly userRepo: Repository<User>,
-        @inject(DIContainerTokensEnum.ISecurityLoggerService)
-        private readonly securityLogger: ISecurityLoggerService,
-        @inject(DIContainerTokensEnum.IPasswordService)
-        private readonly passwordService: IPasswordService,
+        @inject(DIContainerTokensEnum.UserRepository) private readonly userRepo: Repository<User>,
+        @inject(DIContainerTokensEnum.ISecurityLoggerService) private readonly securityLogger: ISecurityLoggerService,
+        @inject(DIContainerTokensEnum.IPasswordService) private readonly passwordService: IPasswordService,
     ) {}
 
     /**
      * @description Creates a new user with the provided data. If a password is included, it will be hashed before saving.
-     * @param data
-     * @returns
+     * @param data - The data for creating the new user.
+     * @returns A promise resolving to the created user.
      */
     public async createUser(data: Partial<CreateUserDTO>): Promise<User> {
-        if (data.password) {
+        if (data.password?.trim()) {
             const hashedPassword = await this.passwordService.hashPassword(data.password);
             if (!hashedPassword) {
                 this.logAction(ServiceNameEnum.UserService, LogLevelEnum.ERROR, ActionTypeEnum.CreateUserFailure, `Failed to hash password for user with email: ${data.email}`);
@@ -55,7 +52,7 @@ export class UserService implements IUserService {
 
     /**
      * @description Gets all users
-     * @returns
+     * @returns A promise resolving to an array of user responses containing user details.
      */
     public async getUsers(): Promise<IGetUserResponse[]> {
         const users = await this.userRepo.find();
@@ -66,8 +63,8 @@ export class UserService implements IUserService {
 
     /**
      * @description Retrieves a user by ID
-     * @param id
-     * @returns
+     * @param id - The unique identifier of the user to be retrieved.
+     * @returns A promise resolving to the user response containing user details if found, or null if no user with the given ID exists. The method also logs the data access event for auditing purposes.
      */
     public async getUser(id: string): Promise<IGetUserResponse | null> {
         const user = await this.userRepo.findOneBy({ id: id });
@@ -80,8 +77,8 @@ export class UserService implements IUserService {
 
     /**
      * @description Deletes a user by ID
-     * @param id
-     * @returns
+     * @param id - The unique identifier of the user to be deleted.
+     * @returns A promise that resolves when the user has been deleted. If no user with the given ID exists, an AppError is thrown indicating that the user was not found. The method also logs the outcome of the delete operation for auditing purposes, including whether the deletion was successful or if it failed due to the user not being found.
      */
     public async deleteUser(id: string): Promise<void> {
         const user = await this.userRepo.findOneBy({ id: id });
@@ -95,11 +92,12 @@ export class UserService implements IUserService {
     }
 
     private static fromEntity(entity: User): IGetUserResponse {
-        const { id, firstName, lastName, email } = entity;
+        const { id, firstName, lastName, email, role } = entity;
         const dto: IGetUserResponse = {
             id: id,
             fullName: `${firstName} ${lastName}`,
             email: email,
+            role: role,
         };
         return dto;
     }

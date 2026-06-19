@@ -27,27 +27,26 @@ export type PasswordValidationResult = string[];
 export class PasswordService implements IPasswordService {
     /**
      * @description Initializes the PasswordService with the necessary repositories and services for user management and security logging.
-     * @param userRepo
-     * @param securityLogger
+     * @param userRepo - The repository for accessing user data in the database.
+     * @param securityLogger - The service responsible for logging security-related events, such as password changes.
      */
     constructor(
-        @inject(DIContainerTokensEnum.UserRepository)
-        private readonly userRepo: Repository<User>,
-        @inject(DIContainerTokensEnum.ISecurityLoggerService)
-        private readonly securityLogger: ISecurityLoggerService,
+        @inject(DIContainerTokensEnum.UserRepository) private readonly userRepo: Repository<User>,
+        @inject(DIContainerTokensEnum.ISecurityLoggerService) private readonly securityLogger: ISecurityLoggerService,
     ) {}
 
     /**
      * @description Changes the password for a user.
-     * @param userId
-     * @param newPassword
+     * @param userId - The unique identifier of the user whose password is to be changed.
+     * @param newPassword - The new password to be set for the user.
+     * @returns A promise that resolves when the password change is complete. The method does not return any value upon successful completion.
      */
     public async changePassword(userId: string, dto: ChangePasswordDTO): Promise<void> {
         const { newPassword, currentPassword } = dto;
 
         const user = await this.userRepo.findOneBy({ id: userId });
         if (!user) {
-            this.throwError(`User not found with ID: ${userId}`, ActionTypeEnum.ChangePasswordFailure, LogLevelEnum.WARNING);
+            this.throwError(`User not found with ID: ${userId}`, ActionTypeEnum.ChangePasswordFailure, LogLevelEnum.WARNING, 404);
         }
 
         const isValid = await this.comparePassword(currentPassword, user.password);
@@ -67,8 +66,8 @@ export class PasswordService implements IPasswordService {
 
     /**
      * @description Validates a password against the application's password policy.
-     * @param password
-     * @returns
+     * @param password - The password to be validated.
+     * @returns A promise resolving to an object indicating whether the password is valid and any errors found.
      */
     public async validatePassword(password: string): Promise<{ valid: boolean; errors: string[] }> {
         const validationResult: PasswordValidationResult = passwordSchema.validate(password, { list: true }) as PasswordValidationResult;
@@ -92,13 +91,19 @@ export class PasswordService implements IPasswordService {
 
     /**
      * @description Hashes a password using bcrypt.
-     * @param password
-     * @returns
+     * @param password - The password to be hashed.
+     * @returns A promise resolving to the hashed password.
      */
     public async hashPassword(password: string): Promise<string> {
         return await bcrypt.hash(password, 10);
     }
 
+    /**
+     * @description Compares a plain text password with a hashed password.
+     * @param password - The plain text password to be compared.
+     * @param hash - The hashed password to compare against.
+     * @returns A promise resolving to a boolean indicating whether the passwords match.
+     */
     public async comparePassword(password: string, hash: string): Promise<boolean> {
         return await bcrypt.compare(password, hash);
     }

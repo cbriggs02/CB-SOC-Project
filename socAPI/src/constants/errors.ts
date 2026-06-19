@@ -20,6 +20,9 @@ export const ERROR_MESSAGES = {
     AUTHENTICATION: {
         TOKEN_VERIFICATION_FAILED: 'Token verification failed',
     },
+    AUTHORIZATION: {
+        ROLE_OPERATION_FAILED: 'Role operation failed',
+    },
     GENERAL: {
         INTERNAL_ERROR: 'Internal server error',
     },

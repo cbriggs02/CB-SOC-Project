@@ -8,9 +8,9 @@ type EnvKey = keyof typeof ENV_KEYS;
 
 /**
  * @description Ensures that an environment variable is set and returns its value.
- * @param name
- * @param value
- * @returns
+ * @param name - The name of the environment variable to check.
+ * @param value - The value of the environment variable to check. If not provided, it will be retrieved from process.env using the name parameter.
+ * @returns The value of the environment variable if it is set; otherwise, an empty string. If the environment variable is not set, its name will be added to the errors array for later reporting.
  */
 function required(name: EnvKey, value?: string): string {
     if (!value) {

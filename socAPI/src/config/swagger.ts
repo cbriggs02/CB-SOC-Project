@@ -27,7 +27,20 @@ export function getSwaggerSpec() {
                 },
                 components: {
                     schemas,
+                    securitySchemes: {
+                        bearerAuth: {
+                            type: 'http',
+                            scheme: 'bearer',
+                            bearerFormat: 'JWT',
+                            description: 'Enter: Bearer <your token>',
+                        },
+                    },
                 },
+                security: [
+                    {
+                        bearerAuth: [],
+                    },
+                ],
             },
         );
     }
